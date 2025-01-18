@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EmptyCard from '../assets/images/secttion/emptycart.png';
 
-const Checkout = ({ cart, totalQuantity, totalPrice, isLoggedIn }) => {
+const Checkout = ({ isLoggedIn }) => {
+  const [cart, setCart] = useState([]);
   const [billingInfo, setBillingInfo] = useState({
     name: '',
     email: '',
@@ -12,6 +13,14 @@ const Checkout = ({ cart, totalQuantity, totalPrice, isLoggedIn }) => {
   });
 
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const savedCart = JSON.parse(localStorage.getItem('cart')) || [];
+    setCart(savedCart);
+  }, []);
+
+  const totalQuantity = cart.reduce((acc, item) => acc + item.quantity, 0);
+  const totalPrice = cart.reduce((acc, item) => acc + item.totalPrice, 0);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -23,9 +32,8 @@ const Checkout = ({ cart, totalQuantity, totalPrice, isLoggedIn }) => {
 
   const handleCheckout = () => {
     if (!isLoggedIn) {
-      navigate('/login');  // Redirect to login page if the user is not logged in
+      navigate('/login');
     } else {
-      // Handle successful checkout
       console.log('Checkout successful with billing info:', billingInfo);
     }
   };
@@ -36,7 +44,6 @@ const Checkout = ({ cart, totalQuantity, totalPrice, isLoggedIn }) => {
         <div>
           <h3 className="text-2xl font-semibold mb-4">Checkout</h3>
           <div className="flex flex-col md:flex-row justify-between space-x-10 mt-8">
-            {/* Billing Form */}
             <div className="md:w-2/3 bg-white p-6 rounded-lg shadow-md border">
               <h3 className="text-sm font-semibold mb-5">Billing Information</h3>
               <form>
@@ -89,7 +96,7 @@ const Checkout = ({ cart, totalQuantity, totalPrice, isLoggedIn }) => {
                   />
                 </div>
                 <div className="mb-4">
-                  <label htmlFor="zip" className="block text-sm font-medium">ZIP Code</label>
+                  <label htmlFor="zip" className="block text-sm font-medium">Zip Code</label>
                   <input
                     type="text"
                     id="zip"
@@ -102,8 +109,6 @@ const Checkout = ({ cart, totalQuantity, totalPrice, isLoggedIn }) => {
                 </div>
               </form>
             </div>
-
-            {/* Cart Summary */}
             <div className="md:w-1/3 bg-white p-6 rounded-lg shadow-md border">
               <h3 className="text-sm font-semibold mb-5">Cart Summary</h3>
               <div className="flex justify-between mb-5 border-b pb-1">
@@ -118,7 +123,7 @@ const Checkout = ({ cart, totalQuantity, totalPrice, isLoggedIn }) => {
                 className="w-full bg-amber-300 text-black py-2 hover:bg-amber-500"
                 onClick={handleCheckout}
               >
-                {isLoggedIn ? 'Complete Checkout' : 'Proceed to Login'}
+                Checkout
               </button>
             </div>
           </div>

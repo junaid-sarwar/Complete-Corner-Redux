@@ -8,20 +8,21 @@ const Login = ({ redirectTo = "/" }) => {
   const [errorMessage, setErrorMessage] = useState("");
 
   const navigate = useNavigate();
-  const location = useLocation(); // Access location state
+  const location = useLocation();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-
+  
     if (username === "admin" && passKey === "admin@corner") {
       localStorage.setItem("username", "admin");
       localStorage.setItem("password", "admin@corner");
       navigate("/adminDash");
+      return;
     } else {
       await userCredential(username, passKey);
     }
   };
-
+  
   const userCredential = async (user, password) => {
     try {
       const response = await fetch("https://dummyjson.com/auth/login", {
@@ -33,17 +34,16 @@ const Login = ({ redirectTo = "/" }) => {
           expiresInMins: 30,
         }),
       });
-
+  
       const data = await response.json();
-
+  
       if (data.accessToken) {
         localStorage.setItem("username", user);
         localStorage.setItem("password", password);
         localStorage.setItem("accessToken", data.accessToken);
-
-        // Determine redirection path
-        const redirectPath = location.state?.redirectTo || redirectTo;
-        navigate(redirectPath);
+  
+        navigate("/");
+        window.location.reload();
       } else {
         setErrorMessage("Login failed. Please check your credentials.");
         Swal.fire({

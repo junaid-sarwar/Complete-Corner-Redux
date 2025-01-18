@@ -60,15 +60,15 @@ const Cart = ({ cart, setCart, isLoggedIn }) => {
     } else {
       navigate('/login', { state: { redirectTo: '/checkout' } });
     }
-  };  
+  };
 
   return (
-    <div className="container mx-auto py-8 min-h-96 px-4 md:px-16 lg:px-24">
+    <div className="container mx-auto py-8 px-4 md:px-16 lg:px-24 overflow-x-hidden">
       {cart.length > 0 ? (
         <div>
-          <h3 className="text-2xl font-semibold mb-4">Shopping Cart</h3>
+          <h3 className="text-2xl font-semibold mb-4 text-center md:text-left">Shopping Cart</h3>
           <div className="flex flex-col md:flex-row justify-between space-x-10 mt-8">
-            <div className="md:w-2/3">
+            <div className="w-full md:w-2/3 max-w-[90%] mx-auto">
               <div className="flex justify-between border-b items-center mb-4 text-xs font-bold">
                 <p>Products</p>
                 <div className="flex space-x-8">
@@ -86,13 +86,13 @@ const Cart = ({ cart, setCart, isLoggedIn }) => {
                   return (
                     <div
                       key={product.id}
-                      className="flex items-center justify-between p-3 border-b"
+                      className="flex flex-col md:flex-row items-center justify-between p-3 border-b"
                     >
-                      <div className="md:flex items-center space-x-4">
+                      <div className="flex items-center space-x-4 w-full">
                         <img
                           src={productDetails ? productDetails.thumbnail : '/path/to/fallback-image.png'}
                           alt={product.name}
-                          className="w-16 h-16 object-contain rounded"
+                          className="w-16 h-16 object-contain rounded mb-4 md:mb-0"
                         />
                         <div className="flex-1 ml-4">
                           <h3 className="text-lg font-semibold">
@@ -100,24 +100,24 @@ const Cart = ({ cart, setCart, isLoggedIn }) => {
                           </h3>
                         </div>
                       </div>
-                      <div className="flex space-x-12 items-center">
-                        <p>${product.price}</p>
-                        <div className="flex items-center justify-center border">
+                      <div className="flex space-x-4 items-center w-full justify-between">
+                        <p className="text-xs md:text-base">${product.price}</p>
+                        <div className="flex items-center justify-center border text-xs md:text-base">
                           <button
-                            className="text-xl font-bold px-1.5 border-r"
+                            className="font-bold px-1.5 border-r"
                             onClick={() => handleQuantityChange(product.id, 'decrease')}
                           >
                             -
                           </button>
-                          <p className="text-xl px-2">{product.quantity}</p>
+                          <p className="px-2">{product.quantity}</p>
                           <button
-                            className="text-xl px-1 border-l"
+                            className="px-1 border-l"
                             onClick={() => handleQuantityChange(product.id, 'increase')}
                           >
                             +
                           </button>
                         </div>
-                        <p>${product.totalPrice.toFixed(2)}</p>
+                        <p className="text-xs md:text-base">${product.totalPrice.toFixed(2)}</p>
                         <button
                           className="text-red-500 hover:text-red-700"
                           onClick={() => handleRemoveProduct(product.id)}
@@ -130,7 +130,7 @@ const Cart = ({ cart, setCart, isLoggedIn }) => {
                 })}
               </div>
             </div>
-            <div className="md:w-1/3 bg-white p-6 rounded-lg shadow-md border">
+            <div className="w-4/3 justify-center md:mx-auto md:w-1/3 bg-white p-4 md:p-6 rounded-lg shadow-md border mt-8 md:mt-0 max-w-[90%]">
               <h3 className="text-sm font-semibold mb-5">Cart Total</h3>
               <div className="flex justify-between mb-5 border-b pb-1">
                 <span className="text-sm">Total Items:</span>

@@ -67,7 +67,7 @@ const Footer = () => {
           <div className="space-y-3">
             <h1 className="text-3xl font-bold">Complete Corner</h1>
             <p className="text-gray-500">
-              Complete your style with awesome clothes from us.
+              Complete your style with awesome products from us.
             </p>
             <div className="flex gap-4 items-center">
               {icons.map((icon) => (

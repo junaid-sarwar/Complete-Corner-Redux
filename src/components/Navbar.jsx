@@ -1,46 +1,76 @@
-import React, { useState, useEffect } from 'react';
-import { FaSearch, FaShoppingCart, FaUser, FaBars } from 'react-icons/fa';
-import { Link, useNavigate } from 'react-router-dom'; // useNavigate hook
-import { fetchCategories } from '../assets/productCategory';
+import React, { useState, useEffect } from "react";
+import { FaSearch, FaShoppingCart, FaUser, FaBars } from "react-icons/fa";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { fetchCategories } from "../assets/productCategory";
 
 const Navbar = ({ cart }) => {
   const [categories, setCategories] = useState([]);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [linksOpen, setLinksOpen] = useState(false);
+  const [upperMenuOpen, setUpperMenuOpen] = useState(false);
+  const [lowerMenuOpen, setLowerMenuOpen] = useState(false);
+  const [user, setUser] = useState(null);
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isActive = (path) => location.pathname === path;
 
   const handleLogin = () => {
-    navigate('/login', { state: { redirectTo: '/' } });
+    navigate("/login", { state: { redirectTo: "/" } });
   };
-  
 
   const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
 
   useEffect(() => {
-    const getCategories = async () => {
-      const data = await fetchCategories();
-      setCategories(data);
-    };
-    getCategories();
+    // Fetching user data from localStorage
+    const username = localStorage.getItem("username");
+    if (username) {
+      fetch("https://dummyjson.com/users")
+        .then((response) => response.json())
+        .then((data) => {
+          const users = data.users;
+          const loggedInUser = users.find((user) => user.username === username);
+          if (loggedInUser) {
+            setUser(loggedInUser);
+          } else {
+            console.error("User not found!");
+          }
+        })
+        .catch((error) => console.error("Error fetching users:", error));
+    }
+
+    // Fetching product categories from the products API
+    fetch("https://dummyjson.com/products")
+      .then((response) => response.json())
+      .then((data) => {
+        const productCategories = [...new Set(data.products.map((product) => product.category))];
+        setCategories(productCategories);
+      })
+      .catch((error) => console.error("Error fetching products:", error));
   }, []);
+
+  const handleLogout = () => {
+    localStorage.clear();
+    setUser(null);
+    navigate("/login");
+  };
 
   return (
     <nav className="bg-white shadow-md">
+      {/* Upper Navbar */}
       <div className="container mx-auto px-4 md:px-16 lg:px-24 py-4 flex justify-between items-center">
         <div className="text-lg font-bold">
           <Link to="/">Complete Corner</Link>
         </div>
-        <div className="relative flex-1 mx-4">
-          <form>
+        <div className="relative hidden md:flex flex-1 lg:w-2/3 mx-4">
+          <form className="w-full">
             <input
               type="text"
               placeholder="Search Products"
-              className="w-full border py-2 px-4"
+              className="w-full border py-2 px-4 rounded-2xl border-black"
             />
             <FaSearch className="absolute top-3 right-3 text-red-500" />
           </form>
         </div>
-        <div className="flex items-center space-x-4">
+        <div className="hidden md:flex items-center space-x-4">
           <Link to="/cart" className="relative">
             <FaShoppingCart className="text-xl" />
             {cartCount > 0 && (
@@ -49,54 +79,129 @@ const Navbar = ({ cart }) => {
               </span>
             )}
           </Link>
-          <button className="hidden md:block" onClick={handleLogin}>Login | Register</button>
-          <button className="block md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
-            <FaUser />
-          </button>
+          {user ? (
+            <div className="flex items-center space-x-2">
+              <img
+                src={user.image}
+                alt="User"
+                className="w-8 h-8 rounded-full object-cover"
+              />
+              <span className="text-sm font-medium">{user.firstName}</span>
+              <button
+                className="text-sm font-medium text-red-500"
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
+            <button onClick={handleLogin}>Login | Register</button>
+          )}
+        </div>
+        {/* Hamburger Button for Upper Navbar */}
+        <button
+          className="block md:hidden"
+          onClick={() => setUpperMenuOpen(!upperMenuOpen)}
+        >
+          <FaBars />
+        </button>
+      </div>
+
+      {/* Upper Navbar Dropdown Menu for Mobile */}
+      <div
+        className={`md:hidden ${upperMenuOpen ? "block" : "hidden"} bg-white shadow-lg`}
+      >
+        <div className="px-4 py-2">
+          <form>
+            <input
+              type="text"
+              placeholder="Search Products"
+              className="w-full border py-2 px-4 rounded-2xl border-black"
+            />
+          </form>
+        </div>
+        <div className="flex flex-col items-start px-4 py-2 space-y-2">
+          <Link to="/cart" className="relative flex items-center">
+            <FaShoppingCart className="text-xl" />
+            {cartCount > 0 && (
+              <span className="ml-2 bg-red-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                {cartCount}
+              </span>
+            )}
+          </Link>
+          {user ? (
+            <div className="flex items-center space-x-2">
+              <img
+                src={user.image}
+                alt="User"
+                className="w-8 h-8 rounded-full object-cover"
+              />
+              <span className="text-sm font-medium">{user.firstName}</span>
+              <button
+                className="text-sm font-medium text-red-500"
+                onClick={handleLogout}
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
+            <button onClick={handleLogin}>Login | Register</button>
+          )}
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Lower Navbar */}
       <div className="md:hidden flex items-center justify-between py-4 px-4 text-sm font-bold border-t">
-        <button className="flex items-center space-x-2" onClick={() => setMenuOpen(!menuOpen)}>
+        <button
+          className="flex items-center space-x-2"
+          onClick={() => setLowerMenuOpen(!lowerMenuOpen)}
+        >
           <FaBars />
-          <span>All Categories</span>
-        </button>
-        <button className="flex items-center space-x-2" onClick={() => setLinksOpen(!linksOpen)}>
           <span>Menu</span>
         </button>
       </div>
 
-      <div className={`md:hidden ${menuOpen ? 'block' : 'hidden'} absolute top-20 left-0 w-full bg-white shadow-lg border rounded-md z-10`}>
-        <ul className="space-y-2 p-4">
-          {categories.map((category, index) => (
-            <li
-              key={index}
-              className="flex items-center text-sm font-medium hover:bg-gray-100 p-2 rounded"
-            >
-              {category.icon && (
-                <img
-                  src={category.icon}
-                  alt={category.name}
-                  className="w-5 h-5 mr-2"
-                />
-              )}
-              {category.name}
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div className={`md:hidden ${linksOpen ? 'block' : 'hidden'} bg-white border-t py-4`}>
-        <div className="space-y-4 text-center">
-          <Link to="/" className="block hover:underline">Home</Link>
-          <Link to="/shop" className="block hover:underline">Shop</Link>
-          <Link to="/" className="block hover:underline">Contact Us</Link>
-          <Link to="/" className="block hover:underline">About</Link>
+      {/* Lower Navbar Dropdown Menu for Mobile */}
+      <div
+        className={`md:hidden ${lowerMenuOpen ? "block" : "hidden"} bg-white border-t`}
+      >
+        <div className="space-y-4 text-center justify-between">
+          <Link
+            to="/"
+            className={`hover:underline decoration-transparent hover:decoration-amber-400 px-2${
+              isActive("/") ? "decoration-amber-400 underline decoration-4 underline-offset-4" : ""
+            }`}
+          >
+            Home
+          </Link>
+          <Link
+            to="/shop"
+            className={`hover:underline decoration-transparent hover:decoration-amber-400 px-2${
+              isActive("/shop") ? "decoration-amber-400 underline decoration-4 underline-offset-4" : ""
+            }`}
+          >
+            Shop
+          </Link>
+          <Link 
+          to="/contact-us"
+          className={`hover:underline decoration-transparent hover:decoration-amber-400 px-2${
+            isActive("/contact-us") ? "decoration-amber-400 underline decoration-4 underline-offset-4" : ""
+          }`}
+          >
+            Contact Us
+          </Link>
+          <Link 
+          to="/about" 
+          className={`hover:underline decoration-transparent hover:decoration-amber-400 px-2${
+            isActive("/about") ? "decoration-amber-400 underline decoration-4 underline-offset-4" : ""
+          }`}
+          >
+            About
+          </Link>
         </div>
       </div>
 
-      {/* Desktop Menu */}
+      {/* Desktop Lower Navbar */}
       <div className="hidden md:flex items-center justify-between py-4 px-4 text-sm font-bold border-t">
         <div className="relative group">
           <button className="flex items-center space-x-2 hover:underline">
@@ -110,30 +215,43 @@ const Navbar = ({ cart }) => {
                   key={index}
                   className="flex items-center text-sm font-medium hover:bg-gray-100 p-2 rounded"
                 >
-                  {category.icon && (
-                    <img
-                      src={category.icon}
-                      alt={category.name}
-                      className="w-5 h-5 mr-2"
-                    />
-                  )}
-                  {category.name}
+                  {category}
                 </li>
               ))}
             </ul>
           </div>
         </div>
         <div className="flex space-x-6">
-          <Link to="/" className="hover:underline">
+          <Link
+            to="/"
+            className={`hover:underline decoration-transparent hover:decoration-amber-400 ${
+              isActive("/") ? "decoration-amber-400 underline decoration-4 underline-offset-4" : ""
+            }`}
+          >
             Home
           </Link>
-          <Link to="/shop" className="hover:underline">
+          <Link
+            to="/shop"
+            className={`hover:underline decoration-transparent hover:decoration-amber-400 ${
+              isActive("/shop") ? "decoration-amber-400 underline decoration-4 underline-offset-4" : ""
+            }`}
+          >
             Shop
           </Link>
-          <Link to="/" className="hover:underline">
+          <Link 
+          to="/contact-us" 
+          className={`hover:underline decoration-transparent hover:decoration-amber-400 ${
+            isActive("/contact-us") ? "decoration-amber-400 underline decoration-4 underline-offset-4" : ""
+          }`}
+          >
             Contact Us
           </Link>
-          <Link to="/" className="hover:underline">
+          <Link 
+          to="/about" 
+          className={`hover:underline decoration-transparent hover:decoration-amber-400 ${
+            isActive("/about") ? "decoration-amber-400 underline decoration-4 underline-offset-4" : ""
+          }`}
+          >
             About
           </Link>
         </div>

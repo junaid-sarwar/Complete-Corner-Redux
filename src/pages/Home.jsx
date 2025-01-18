@@ -3,6 +3,8 @@ import Banner from '../components/sections/banner/Banner';
 import BrandSection from '../components/sections/brands/BrandSection';
 import InfoSection from '../components/sections/InfoSec/InfoSection';
 import TrendingSection from '../components/trending/TrendingSection';
+import CommunitySection from '../components/sections/communitySec/CommunitySection';
+import DownloadSection from '../components/sections/downloadSec/DownloadSection';
 
 const Home = () => {
   return (
@@ -10,8 +12,9 @@ const Home = () => {
       <Banner />
       <BrandSection />
       <InfoSection />
-      {/* <CategorySection /> */}
       <TrendingSection />
+      <DownloadSection/>
+      <CommunitySection/>
     </>
   );
 };
