@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 
 const Shop = ({ cart, setCart }) => {
   const [products, setProducts] = useState([]);
@@ -24,22 +25,30 @@ const Shop = ({ cart, setCart }) => {
   const addToCart = (product) => {
     setCart((prevCart) => {
       const existingProduct = prevCart.find((item) => item.id === product.id);
+      let updatedCart;
+
       if (existingProduct) {
-        // Update quantity and totalPrice if product exists
-        return prevCart.map((item) =>
+        updatedCart = prevCart.map((item) =>
           item.id === product.id
             ? { ...item, quantity: item.quantity + 1, totalPrice: item.totalPrice + product.price }
             : item
         );
       } else {
-        // Add new product to cart
-        return [
+        updatedCart = [
           ...prevCart,
           { id: product.id, name: product.title, price: product.price, quantity: 1, totalPrice: product.price },
         ];
       }
+
+      // Save to localStorage
+      localStorage.setItem('cart', JSON.stringify(updatedCart));
+      return updatedCart;
     });
-    alert(`${product.title} added to cart!`);
+
+    toast.success(`${product.title} added to cart!`, {
+      position: 'top-center',
+      duration: 2000,
+    });
   };
 
   return (

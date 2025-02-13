@@ -169,7 +169,7 @@ const Navbar = ({ cart }) => {
           <Link
             to="/"
             className={`hover:underline decoration-transparent hover:decoration-amber-400 px-2${
-              isActive("/") ? "decoration-amber-400 underline decoration-4 underline-offset-4" : ""
+              isActive("/") ? "active:decoration-amber-400 underline decoration-4 underline-offset-4" : ""
             }`}
           >
             Home
@@ -225,7 +225,7 @@ const Navbar = ({ cart }) => {
           <Link
             to="/"
             className={`hover:underline decoration-transparent hover:decoration-amber-400 ${
-              isActive("/") ? "decoration-amber-400 underline decoration-4 underline-offset-4" : ""
+              isActive("/") ? "focus:decoration-amber-400 focus:underline focus:decoration-4 focus:underline-offset-4" : ""
             }`}
           >
             Home
@@ -233,7 +233,7 @@ const Navbar = ({ cart }) => {
           <Link
             to="/shop"
             className={`hover:underline decoration-transparent hover:decoration-amber-400 ${
-              isActive("/shop") ? "decoration-amber-400 underline decoration-4 underline-offset-4" : ""
+              isActive("/shop") ? "focus:decoration-amber-400 focus:underline focus:decoration-4 focus:underline-offset-4" : ""
             }`}
           >
             Shop
@@ -241,7 +241,7 @@ const Navbar = ({ cart }) => {
           <Link 
           to="/contact-us" 
           className={`hover:underline decoration-transparent hover:decoration-amber-400 ${
-            isActive("/contact-us") ? "decoration-amber-400 underline decoration-4 underline-offset-4" : ""
+            isActive("/contact-us") ? "focus:decoration-amber-400 focus:underline focus:decoration-4 focus:underline-offset-4" : ""
           }`}
           >
             Contact Us
@@ -249,7 +249,7 @@ const Navbar = ({ cart }) => {
           <Link 
           to="/about" 
           className={`hover:underline decoration-transparent hover:decoration-amber-400 ${
-            isActive("/about") ? "decoration-amber-400 underline decoration-4 underline-offset-4" : ""
+            isActive("/about") ? "focus:decoration-amber-400 focus:underline focus:decoration-4 focus:underline-offset-4" : ""
           }`}
           >
             About

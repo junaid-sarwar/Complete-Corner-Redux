@@ -10,6 +10,7 @@ import Checkout from "./pages/Checkout";
 import Login from "./pages/Login";
 import Contact from "./pages/Contact";
 import About from "./pages/About";
+import { Toaster } from 'react-hot-toast';
 
 function App() {
   const [cart, setCart] = useState([]);
@@ -74,6 +75,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <Toaster position="top-right" reverseOrder={false} />
       <Navbar cart={cart} user={loggedInUser} />
       <Routes>
         <Route path="/" element={<Home />} />
@@ -95,8 +97,8 @@ function App() {
           }
         />
         <Route path="/login" element={<Login redirectTo="/" />} />
-        <Route path="/contact-us" element={<Contact/>}/>
-        <Route path="/about" element={<About/>}/>
+        <Route path="/contact-us" element={<Contact />} />
+        <Route path="/about" element={<About />} />
       </Routes>
       <Footer />
     </BrowserRouter>

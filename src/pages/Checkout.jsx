@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import EmptyCard from '../assets/images/secttion/emptycart.png';
+import Swal from 'sweetalert2';
 
 const Checkout = ({ isLoggedIn }) => {
   const [cart, setCart] = useState([]);
@@ -34,7 +35,14 @@ const Checkout = ({ isLoggedIn }) => {
     if (!isLoggedIn) {
       navigate('/login');
     } else {
-      console.log('Checkout successful with billing info:', billingInfo);
+      Swal.fire({
+        title: "Order Placed!", 
+        icon: "success",
+        draggable: true
+      }).then(() => {
+        localStorage.removeItem('cart');
+        navigate('/');
+      });
     }
   };
 

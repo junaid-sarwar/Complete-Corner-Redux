@@ -3,6 +3,7 @@ import { FaTrashAlt } from 'react-icons/fa';
 import axios from 'axios';
 import EmptyCard from '../assets/images/secttion/emptycart.png';
 import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2';
 
 const Cart = ({ cart, setCart, isLoggedIn }) => {
   const [productData, setProductData] = useState([]);
@@ -12,7 +13,7 @@ const Cart = ({ cart, setCart, isLoggedIn }) => {
     const fetchProductData = async () => {
       try {
         const productIds = cart.map((product) => product.id);
-        const response = await axios.get(`https://dummyjson.com/products`);
+        const response = await axios.get('https://dummyjson.com/products');
         const products = response.data.products.filter((product) =>
           productIds.includes(product.id)
         );
@@ -28,8 +29,8 @@ const Cart = ({ cart, setCart, isLoggedIn }) => {
   }, [cart]);
 
   const handleQuantityChange = (id, type) => {
-    setCart((prevCart) =>
-      prevCart.map((product) =>
+    setCart((prevCart) => {
+      const updatedCart = prevCart.map((product) =>
         product.id === id
           ? {
               ...product,
@@ -43,23 +44,43 @@ const Cart = ({ cart, setCart, isLoggedIn }) => {
                   : Math.max(product.price, product.totalPrice - product.price),
             }
           : product
-      )
-    );
+      );
+
+      // Save to localStorage
+      localStorage.setItem('cart', JSON.stringify(updatedCart));
+      return updatedCart;
+    });
   };
 
   const handleRemoveProduct = (id) => {
-    setCart((prevCart) => prevCart.filter((product) => product.id !== id));
+    setCart((prevCart) => {
+      const updatedCart = prevCart.filter((product) => product.id !== id);
+
+      // Save to localStorage
+      localStorage.setItem('cart', JSON.stringify(updatedCart));
+      return updatedCart;
+    });
   };
 
   const totalQuantity = cart.reduce((acc, item) => acc + item.quantity, 0);
   const totalPrice = cart.reduce((acc, item) => acc + item.totalPrice, 0);
 
   const handleProceedToCheckout = () => {
-    if (isLoggedIn) {
-      navigate('/checkout');
-    } else {
-      navigate('/login', { state: { redirectTo: '/checkout' } });
-    }
+    Swal.fire({
+      title: "Are u sure?", 
+      icon: "question",
+      showCancelButton: true,
+      confirmButtonText: "Yes",
+      cancelButtonText: "No"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        if (isLoggedIn) {
+          navigate('/checkout');
+        } else {
+          navigate('/login', { state: { redirectTo: '/checkout' } });
+        }
+      }
+    });
   };
 
   return (
