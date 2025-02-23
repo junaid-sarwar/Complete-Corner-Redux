@@ -2,8 +2,17 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import { addToCart } from '../redux/cartSlice';
+import { useDispatch } from 'react-redux';
 
-const Shop = ({ cart, setCart }) => {
+const Shop = () => {
+  const dispatch = useDispatch();
+  const handleAddToCart = (e, product) => {
+    e.stopPropagation();
+    e.preventDefault();
+    dispatch(addToCart(product));
+  };  
+  
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -22,34 +31,34 @@ const Shop = ({ cart, setCart }) => {
     fetchProducts();
   }, []);
 
-  const addToCart = (product) => {
-    setCart((prevCart) => {
-      const existingProduct = prevCart.find((item) => item.id === product.id);
-      let updatedCart;
+  // const addToCarts = (product) => {
+  //   setCart((prevCart) => {
+  //     const existingProduct = prevCart.find((item) => item.id === product.id);
+  //     let updatedCart;
 
-      if (existingProduct) {
-        updatedCart = prevCart.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1, totalPrice: item.totalPrice + product.price }
-            : item
-        );
-      } else {
-        updatedCart = [
-          ...prevCart,
-          { id: product.id, name: product.title, price: product.price, quantity: 1, totalPrice: product.price },
-        ];
-      }
+  //     if (existingProduct) {
+  //       updatedCart = prevCart.map((item) =>
+  //         item.id === product.id
+  //           ? { ...item, quantity: item.quantity + 1, totalPrice: item.totalPrice + product.price }
+  //           : item
+  //       );
+  //     } else {
+  //       updatedCart = [
+  //         ...prevCart,
+  //         { id: product.id, name: product.title, price: product.price, quantity: 1, totalPrice: product.price },
+  //       ];
+  //     }
 
-      // Save to localStorage
-      localStorage.setItem('cart', JSON.stringify(updatedCart));
-      return updatedCart;
-    });
+  //     // Save to localStorage
+  //     localStorage.setItem('cart', JSON.stringify(updatedCart));
+  //     return updatedCart;
+  //   });
 
-    toast.success(`${product.title} added to cart!`, {
-      position: 'top-center',
-      duration: 2000,
-    });
-  };
+  //   toast.success(`${product.title} added to cart!`, {
+  //     position: 'top-center',
+  //     duration: 2000,
+  //   });
+  // };
 
   return (
     <div className="mx-auto py-12 px-4 md:px-16 lg:px-24">
@@ -78,7 +87,7 @@ const Shop = ({ cart, setCart }) => {
                   <p className="text-gray-500">${product.price}</p>
                 </div>
                 <button
-                  onClick={() => addToCart(product)}
+                  onClick={(e)=>handleAddToCart(e,product)}
                   className="absolute bottom-2 right-2 bg-amber-300 text-white w-8 h-8 rounded-full flex items-center justify-center hover:bg-amber-400 shadow-lg"
                 >
                   +

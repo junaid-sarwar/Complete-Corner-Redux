@@ -1,28 +1,34 @@
 import { useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import Swal from "sweetalert2";
+import { login } from "../redux/authSlice";
 
-const Login = ({ redirectTo = "/" }) => {
+const Login = () => {
   const [username, setUsername] = useState("");
   const [passKey, setPassKey] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
   const navigate = useNavigate();
-  const location = useLocation();
+  const dispatch = useDispatch();
 
   const handleLogin = async (e) => {
     e.preventDefault();
   
     if (username === "admin" && passKey === "admin@corner") {
-      localStorage.setItem("username", "admin");
-      localStorage.setItem("password", "admin@corner");
+      const adminData = { name: "Admin", role: "admin", token: "admin-token-123" };
+      
+      localStorage.setItem("accessToken", adminData.token);
+      localStorage.setItem("user", JSON.stringify(adminData));
+  
+      dispatch(login(adminData));
       navigate("/adminDash");
       return;
     } else {
       await userCredential(username, passKey);
     }
-  };
-  
+  };  
+
   const userCredential = async (user, password) => {
     try {
       const response = await fetch("https://dummyjson.com/auth/login", {
@@ -36,29 +42,34 @@ const Login = ({ redirectTo = "/" }) => {
       });
   
       const data = await response.json();
+      console.log("API Response:", data);
   
-      if (data.accessToken) {
-        localStorage.setItem("username", user);
-        localStorage.setItem("password", password);
+      if (response.ok && data.accessToken) {  
         localStorage.setItem("accessToken", data.accessToken);
+        localStorage.setItem("user", JSON.stringify(data));
+        localStorage.setItem("username", data.username); 
+  
+        dispatch(
+          login({
+            user: { name: data.username, role: data.role || "user" },
+            token: data.accessToken,
+          })
+        );
   
         navigate("/");
         window.location.reload();
       } else {
-        setErrorMessage("Login failed. Please check your credentials.");
-        Swal.fire({
-          icon: "error",
-          text: "Login failed. Please check your credentials!",
-        });
+        throw new Error(data.message || "Login failed. Please check your credentials.");
       }
     } catch (error) {
-      setErrorMessage("An error occurred. Please try again.");
+      console.error("Error:", error);
+      setErrorMessage(error.message);
       Swal.fire({
         icon: "error",
-        text: "An error occurred. Please try again.",
+        text: error.message,
       });
     }
-  };
+  };  
 
   return (
     <div className="container mx-auto py-8 min-h-96 px-4 md:px-16 lg:px-24">

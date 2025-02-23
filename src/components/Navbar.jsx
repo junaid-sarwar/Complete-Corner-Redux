@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { FaSearch, FaShoppingCart, FaUser, FaBars } from "react-icons/fa";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { fetchCategories } from "../assets/productCategory";
+import { useSelector, useDispatch } from "react-redux";
+import { logout } from "../redux/authSlice";
 
 const Navbar = ({ cart }) => {
   const [categories, setCategories] = useState([]);
   const [upperMenuOpen, setUpperMenuOpen] = useState(false);
   const [lowerMenuOpen, setLowerMenuOpen] = useState(false);
-  const [user, setUser] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const dispatch = useDispatch();
+
+  const { loggedIn, user } = useSelector((state) => state.auth);
 
   const isActive = (path) => location.pathname === path;
 
@@ -17,27 +20,10 @@ const Navbar = ({ cart }) => {
     navigate("/login", { state: { redirectTo: "/" } });
   };
 
-  const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
+  const cartItems = useSelector((state) => state.cart.items);
+  const cartCount = cartItems.reduce((total, item) => total + item.quantity, 0);
 
   useEffect(() => {
-    // Fetching user data from localStorage
-    const username = localStorage.getItem("username");
-    if (username) {
-      fetch("https://dummyjson.com/users")
-        .then((response) => response.json())
-        .then((data) => {
-          const users = data.users;
-          const loggedInUser = users.find((user) => user.username === username);
-          if (loggedInUser) {
-            setUser(loggedInUser);
-          } else {
-            console.error("User not found!");
-          }
-        })
-        .catch((error) => console.error("Error fetching users:", error));
-    }
-
-    // Fetching product categories from the products API
     fetch("https://dummyjson.com/products")
       .then((response) => response.json())
       .then((data) => {
@@ -48,9 +34,9 @@ const Navbar = ({ cart }) => {
   }, []);
 
   const handleLogout = () => {
+    dispatch(logout());
     localStorage.clear();
-    setUser(null);
-    navigate("/login");
+    navigate("/login"); 
   };
 
   return (
@@ -79,14 +65,14 @@ const Navbar = ({ cart }) => {
               </span>
             )}
           </Link>
-          {user ? (
+          {loggedIn ? (
             <div className="flex items-center space-x-2">
               <img
-                src={user.image}
+                src={user?.image || "https://via.placeholder.com/40"}
                 alt="User"
                 className="w-8 h-8 rounded-full object-cover"
               />
-              <span className="text-sm font-medium">{user.firstName}</span>
+              <span className="text-sm font-medium">{user?.firstName}</span>
               <button
                 className="text-sm font-medium text-red-500"
                 onClick={handleLogout}
@@ -107,10 +93,9 @@ const Navbar = ({ cart }) => {
         </button>
       </div>
 
+
       {/* Upper Navbar Dropdown Menu for Mobile */}
-      <div
-        className={`md:hidden ${upperMenuOpen ? "block" : "hidden"} bg-white shadow-lg`}
-      >
+      <div className={`md:hidden ${upperMenuOpen ? "block" : "hidden"} bg-white shadow-lg`}>
         <div className="px-4 py-2">
           <form>
             <input
@@ -129,14 +114,14 @@ const Navbar = ({ cart }) => {
               </span>
             )}
           </Link>
-          {user ? (
+          {loggedIn ? (
             <div className="flex items-center space-x-2">
               <img
-                src={user.image}
+                src={user?.image || "https://via.placeholder.com/40"}
                 alt="User"
                 className="w-8 h-8 rounded-full object-cover"
               />
-              <span className="text-sm font-medium">{user.firstName}</span>
+              <span className="text-sm font-medium">{user?.firstName}</span>
               <button
                 className="text-sm font-medium text-red-500"
                 onClick={handleLogout}
@@ -162,39 +147,33 @@ const Navbar = ({ cart }) => {
       </div>
 
       {/* Lower Navbar Dropdown Menu for Mobile */}
-      <div
-        className={`md:hidden ${lowerMenuOpen ? "block" : "hidden"} bg-white border-t`}
-      >
-        <div className="space-y-4 text-center justify-between">
+      <div className={`md:hidden ${lowerMenuOpen ? "block" : "hidden"} bg-white border-t`}>
+        <div className="space-y-4 text-center justify-between py-4">
           <Link
             to="/"
-            className={`hover:underline decoration-transparent hover:decoration-amber-400 px-2${
-              isActive("/") ? "active:decoration-amber-400 underline decoration-4 underline-offset-4" : ""
-            }`}
+            className={`hover:underline decoration-transparent hover:decoration-amber-400 px-2 ${isActive("/") ? "active:decoration-amber-400 underline decoration-4 underline-offset-4" : ""
+              }`}
           >
             Home
           </Link>
           <Link
             to="/shop"
-            className={`hover:underline decoration-transparent hover:decoration-amber-400 px-2${
-              isActive("/shop") ? "decoration-amber-400 underline decoration-4 underline-offset-4" : ""
-            }`}
+            className={`hover:underline decoration-transparent hover:decoration-amber-400 px-2 ${isActive("/shop") ? "decoration-amber-400 underline decoration-4 underline-offset-4" : ""
+              }`}
           >
             Shop
           </Link>
-          <Link 
-          to="/contact-us"
-          className={`hover:underline decoration-transparent hover:decoration-amber-400 px-2${
-            isActive("/contact-us") ? "decoration-amber-400 underline decoration-4 underline-offset-4" : ""
-          }`}
+          <Link
+            to="/contact-us"
+            className={`hover:underline decoration-transparent hover:decoration-amber-400 px-2 ${isActive("/contact-us") ? "decoration-amber-400 underline decoration-4 underline-offset-4" : ""
+              }`}
           >
             Contact Us
           </Link>
-          <Link 
-          to="/about" 
-          className={`hover:underline decoration-transparent hover:decoration-amber-400 px-2${
-            isActive("/about") ? "decoration-amber-400 underline decoration-4 underline-offset-4" : ""
-          }`}
+          <Link
+            to="/about"
+            className={`hover:underline decoration-transparent hover:decoration-amber-400 px-2 ${isActive("/about") ? "decoration-amber-400 underline decoration-4 underline-offset-4" : ""
+              }`}
           >
             About
           </Link>
@@ -224,33 +203,29 @@ const Navbar = ({ cart }) => {
         <div className="flex space-x-6">
           <Link
             to="/"
-            className={`hover:underline decoration-transparent hover:decoration-amber-400 ${
-              isActive("/") ? "focus:decoration-amber-400 focus:underline focus:decoration-4 focus:underline-offset-4" : ""
-            }`}
+            className={`hover:underline decoration-transparent hover:decoration-amber-400 ${isActive("/") ? "focus:decoration-amber-400 focus:underline focus:decoration-4 focus:underline-offset-4" : ""
+              }`}
           >
             Home
           </Link>
           <Link
             to="/shop"
-            className={`hover:underline decoration-transparent hover:decoration-amber-400 ${
-              isActive("/shop") ? "focus:decoration-amber-400 focus:underline focus:decoration-4 focus:underline-offset-4" : ""
-            }`}
+            className={`hover:underline decoration-transparent hover:decoration-amber-400 ${isActive("/shop") ? "focus:decoration-amber-400 focus:underline focus:decoration-4 focus:underline-offset-4" : ""
+              }`}
           >
             Shop
           </Link>
-          <Link 
-          to="/contact-us" 
-          className={`hover:underline decoration-transparent hover:decoration-amber-400 ${
-            isActive("/contact-us") ? "focus:decoration-amber-400 focus:underline focus:decoration-4 focus:underline-offset-4" : ""
-          }`}
+          <Link
+            to="/contact-us"
+            className={`hover:underline decoration-transparent hover:decoration-amber-400 ${isActive("/contact-us") ? "focus:decoration-amber-400 focus:underline focus:decoration-4 focus:underline-offset-4" : ""
+              }`}
           >
             Contact Us
           </Link>
-          <Link 
-          to="/about" 
-          className={`hover:underline decoration-transparent hover:decoration-amber-400 ${
-            isActive("/about") ? "focus:decoration-amber-400 focus:underline focus:decoration-4 focus:underline-offset-4" : ""
-          }`}
+          <Link
+            to="/about"
+            className={`hover:underline decoration-transparent hover:decoration-amber-400 ${isActive("/about") ? "focus:decoration-amber-400 focus:underline focus:decoration-4 focus:underline-offset-4" : ""
+              }`}
           >
             About
           </Link>
